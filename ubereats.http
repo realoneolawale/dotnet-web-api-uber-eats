@@ -1,0 +1,6 @@
+@ubereats_HostAddress = http://localhost:5230
+
+GET {{ubereats_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
