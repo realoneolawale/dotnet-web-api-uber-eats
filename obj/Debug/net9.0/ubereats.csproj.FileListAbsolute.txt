@@ -116,3 +116,4 @@
 /Users/apple/Documents/dotnet/ubereats/bin/Debug/net9.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /Users/apple/Documents/dotnet/ubereats/bin/Debug/net9.0/Microsoft.IdentityModel.Tokens.dll
 /Users/apple/Documents/dotnet/ubereats/bin/Debug/net9.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/apple/Documents/dotnet/ubereats/obj/Debug/net9.0/ubereats.sourcelink.json

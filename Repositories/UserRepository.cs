@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Ubereats.Data;
@@ -26,33 +27,97 @@ namespace Ubereats.Repositories
 
         public async Task<LoginResponseDto> Login(LoginDto loginDto)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email && u.Password == HashPasswordToSHA256(loginDto.Password));
-            if (user != null)
+            if (loginDto.PhoneNumber != null)
             {
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:key"])); // using Microsoft.IdentityModel.Tokens
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256); // using Microsoft.IdentityModel.Tokens
-                var claims = new[]
+                User user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == loginDto.PhoneNumber);
+                if (user != null)
                 {
+                    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:key"])); // using Microsoft.IdentityModel.Tokens
+                    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256); // using Microsoft.IdentityModel.Tokens
+                    var claims = new[]
+                    {
                     new Claim(ClaimTypes.Email, user.Email)
                 };
 
-                var token = new JwtSecurityToken(
-                issuer: _config["JWT:Issuer"],
-                audience: _config["JWT:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddDays(60),
-                signingCredentials: credentials);
+                    var token = new JwtSecurityToken(
+                    issuer: _config["JWT:Issuer"],
+                    audience: _config["JWT:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(60),
+                    signingCredentials: credentials);
 
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token); // using Microsoft.IdentityModel.Tokens.jwt
-                return new LoginResponseDto(
-                    jwt,
-                    "bearer",
-                    user.Id,
-                    user.Email,
-                    user.Name
-                );
+                    var jwt = new JwtSecurityTokenHandler().WriteToken(token); // using Microsoft.IdentityModel.Tokens.jwt
+
+                    // generate token 
+                    var otp = await GenerateOTP(user.Id);
+                    return new LoginResponseDto(
+                        jwt,
+                        "bearer",
+                        user.Id,
+                        user.Email,
+                        user.Name,
+                        otp.OTP
+                    );
+                }
             }
+            else if (loginDto.Email != null && loginDto.Password != null)
+            {
+                User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email && u.Password == HashPasswordToSHA256(loginDto.Password));
+                if (user != null)
+                {
+                    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:key"])); // using Microsoft.IdentityModel.Tokens
+                    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256); // using Microsoft.IdentityModel.Tokens
+                    var claims = new[]
+                    {
+                        new Claim(ClaimTypes.Email, user.Email)
+                    };
+
+                    var token = new JwtSecurityToken(
+                    issuer: _config["JWT:Issuer"],
+                    audience: _config["JWT:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(60),
+                    signingCredentials: credentials);
+
+                    var otp = await GenerateOTP(user.Id);
+
+                    var jwt = new JwtSecurityTokenHandler().WriteToken(token); // using Microsoft.IdentityModel.Tokens.jwt
+                    return new LoginResponseDto(
+                        jwt,
+                        "bearer",
+                        user.Id,
+                        user.Email,
+                        user.Name,
+                        otp.OTP
+                    );
+                }
+            }
+
+
             throw new UberEatsException("Invalid login", HttpStatusCode.NotFound);
+        }
+
+        private async Task<Otp> GenerateOTP(int userId)
+        {
+            // generate random number as OTP
+            Random rand = new Random(1000, 10000);
+            var newOTP = rand.Next(1000, 10000);
+            // check if otp record exists 
+            var existingOTP = await _context.Otps.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (existingOTP != null)
+            {
+                existingOTP.OTP = newOTP.ToString();
+                await _context.SaveChangesAsync();
+                return existingOTP;
+            }
+            else
+            {
+                var otp = new Otp { UserId = userId, OTP = newOTP.ToString() };
+                _context.Otps.AddAsync(otp);
+                await _context.SaveChangesAsync();
+                return otp;
+            }
+            return null;
         }
 
         public async Task<string> Register(UserDto userDto)

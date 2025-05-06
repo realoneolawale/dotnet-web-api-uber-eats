@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Ubereats.DTO;
 using Ubereats.Helpers;
@@ -15,6 +16,15 @@ namespace ubereats.controllers
         public UserController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
+        }
+
+        [HttpGet("is-authenticated")]
+        public bool IsUserAuthenticated()
+        {
+            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (userEmail is null)
+                return false;
+            return true;
         }
 
         [HttpGet("{id}")]

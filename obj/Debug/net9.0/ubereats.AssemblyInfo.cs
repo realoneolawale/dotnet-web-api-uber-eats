@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ubereats")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+86468774f2287ea9827d2cf958996515f3422e81")]
 [assembly: System.Reflection.AssemblyProductAttribute("ubereats")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ubereats")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
