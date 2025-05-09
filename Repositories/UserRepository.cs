@@ -27,7 +27,7 @@ namespace Ubereats.Repositories
 
         public async Task<LoginResponseDto> Login(LoginDto loginDto)
         {
-            if (loginDto.PhoneNumber != null)
+            if (loginDto.PhoneNumber != null && string.IsNullOrEmpty(loginDto.Email) && string.IsNullOrEmpty(loginDto.Password))
             {
                 User user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == loginDto.PhoneNumber);
                 if (user != null)
@@ -60,7 +60,7 @@ namespace Ubereats.Repositories
                     );
                 }
             }
-            else if (loginDto.Email != null && loginDto.Password != null)
+            else if (loginDto.Email != null && loginDto.Password != null && string.IsNullOrEmpty(loginDto.PhoneNumber))
             {
                 User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email && u.Password == HashPasswordToSHA256(loginDto.Password));
                 if (user != null)
@@ -92,16 +92,15 @@ namespace Ubereats.Repositories
                     );
                 }
             }
-
-
             throw new UberEatsException("Invalid login", HttpStatusCode.NotFound);
         }
 
         private async Task<Otp> GenerateOTP(int userId)
         {
             // generate random number as OTP
-            Random rand = new Random(1000, 10000);
+            Random rand = new Random();
             var newOTP = rand.Next(1000, 10000);
+
             // check if otp record exists 
             var existingOTP = await _context.Otps.FirstOrDefaultAsync(p => p.UserId == userId);
             if (existingOTP != null)
@@ -118,6 +117,14 @@ namespace Ubereats.Repositories
                 return otp;
             }
             return null;
+        }
+
+        public async Task<bool> VerifyLoggedInUserOTP(int userId, string otp)
+        {
+            var otpRecord = await _context.Otps.FirstOrDefaultAsync(x => x.UserId == userId && x.OTP == otp);
+            if (otpRecord != null)
+                return true;
+            throw new UberEatsException("OTP not found", HttpStatusCode.NotFound);
         }
 
         public async Task<string> Register(UserDto userDto)

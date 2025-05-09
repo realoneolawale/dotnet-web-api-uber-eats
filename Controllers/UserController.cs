@@ -1,5 +1,6 @@
 
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Ubereats.DTO;
 using Ubereats.Helpers;
@@ -33,6 +34,14 @@ namespace ubereats.controllers
             return Ok();
         }
 
+        [HttpGet("verify-otp/{userId}/{otp}")]
+        public async Task<IActionResult> VerifyLoggedInUserOTP(int userId, string otp)
+        {
+            if (otp != null && userId > 0)
+                return Ok(await _userRepository.VerifyLoggedInUserOTP(userId, otp));
+            return NotFound();
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] UserDto userDto)
         {
@@ -52,5 +61,7 @@ namespace ubereats.controllers
             }
             return NotFound();
         }
+
+
     }
 }
