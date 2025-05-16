@@ -27,5 +27,4 @@ public class RestaurantController : ControllerBase
         return Ok(await _restaurantRepository.RegisterRestaurant(dto));
     }
     
-
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Ubereats.Models
 {
-    public class Restaurant 
+    public class Restaurant
     {
         [Key]
         public int Id { get; set; }
@@ -13,5 +13,7 @@ namespace Ubereats.Models
         public string PlaceId { get; set; }
         public long Longitude { get; set; }
         public long Latitude { get; set; }
+        public List<RestaurantImage> RestaurantImages { get; set; }
+        public List<RestaurantFood> RestaurantFoods { get; set; }
     }
 }
