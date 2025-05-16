@@ -12,6 +12,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<UberEatsContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 // register the services for DI 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
 // add CORS policy to allow only communication with Flutter app
 builder.Services.AddCors(options =>

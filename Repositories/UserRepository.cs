@@ -99,7 +99,7 @@ namespace Ubereats.Repositories
         {
             // generate random number as OTP
             Random rand = new Random();
-            var newOTP = rand.Next(1000, 10000);
+            var newOTP = rand.Next(100000, 999999);
 
             // check if otp record exists 
             var existingOTP = await _context.Otps.FirstOrDefaultAsync(p => p.UserId == userId);
