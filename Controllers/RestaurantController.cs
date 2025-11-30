@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ubereats.DTO;
 using Ubereats.Helpers;
@@ -21,10 +22,17 @@ public class RestaurantController : ControllerBase
         return Ok(await _restaurantRepository.IsRestaurantRegistered(id));
     }
 
+    [Authorize]
     [HttpPost("register-restaurant")]
     public async Task<ActionResult<MessageDto>> RegisterRestaurant(RestaurantAddDto dto)
     {
         return Ok(await _restaurantRepository.RegisterRestaurant(dto));
     }
-    
+
+    [HttpGet("get-all-restaurants")]
+    public async Task<ActionResult<RestaurantGetDto>> GetAllRestaurants()
+    {
+        return Ok(await _restaurantRepository.GetAllRestaurantsAsync());
+    }
+
 }

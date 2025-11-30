@@ -11,5 +11,6 @@ namespace Ubereats.Models
         public string Phone { get; set; }
         public string Password { get; set; }
         public Otp Otp { get; set; }
+        public List<Restaurant> Restaurants { get; set; }
     }
 }

@@ -7,5 +7,6 @@ namespace Ubereats.Repositories
     {
         Task<bool> IsRestaurantRegistered(int id);
         Task<MessageDto> RegisterRestaurant(RestaurantAddDto dto);
+        Task<IEnumerable<RestaurantGetDto>> GetAllRestaurantsAsync();
     }
 }

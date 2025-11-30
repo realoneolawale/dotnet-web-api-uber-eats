@@ -10,12 +10,9 @@ namespace Ubereats.Models
         public string Name { get; set; }
         public double Price { get; set; }
         public double Discount { get; set; }
-
-
         [ForeignKey(nameof(RestaurantId))]
         public int RestaurantId { get; set; }
         public Restaurant Restaurant { get; set; }
-        
         public List<RestaurantImage> RestaurantImages { get; set; }
     }
 }

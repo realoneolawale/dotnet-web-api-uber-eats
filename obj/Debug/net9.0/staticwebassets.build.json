@@ -1,12 +1,20 @@
 {
   "Version": 1,
-  "Hash": "xnzBXdDjGk5Vs0ERLuBmb6w8N0LBNN9e6e3M5z5lA7w=",
+  "Hash": "sKQ794/oBthuA5zGOkoFuKmA4K5avef5n8fJottMkVQ=",
   "Source": "ubereats",
   "BasePath": "_content/ubereats",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "ubereats/wwwroot",
+      "Source": "ubereats",
+      "ContentRoot": "/Users/apple/Documents/dotnet/ubereats/wwwroot/",
+      "BasePath": "_content/ubereats",
+      "Pattern": "**"
+    }
+  ],
   "Assets": [],
   "Endpoints": []
 }

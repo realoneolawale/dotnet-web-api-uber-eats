@@ -1,8 +1,5 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Ubereats.Data;
 using Ubereats.DTO;
 using Ubereats.Helpers;
@@ -14,10 +11,14 @@ namespace Ubereats.Repositories
     public class RestaurantRepository : IRestaurantRepository
     {
         private readonly UberEatsContext _context;
+        private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
 
-        public RestaurantRepository(UberEatsContext context)
+        public RestaurantRepository(UberEatsContext context, IWebHostEnvironment env, IConfiguration config)
         {
             _context = context;
+            _env = env;
+            _config = config;
         }
 
         public void Dispose()
@@ -39,12 +40,28 @@ namespace Ubereats.Repositories
         {
             if (!await RestaurantExists(dto.Name))
             {
+                // check for restaurant logo 
+                if (dto.ImageUrl == null || dto.ImageUrl.Length == 0)
+                    throw new UberEatsException("No restaurant logo added", HttpStatusCode.BadRequest);
+                // upload the restaurant logo 
+                var uploadPath = Path.Combine(_env.WebRootPath, "images/logos");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+                var fileExtension = Path.GetExtension(dto.ImageUrl.FileName);
+                var newFileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadPath, newFileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.ImageUrl.CopyToAsync(stream);
+                }
                 Restaurant restaurant = new Restaurant
                 {
                     Address = dto.Address,
                     Name = dto.Name,
+                    UserId = dto.UserId,
                     SecondaryName = dto.SecondaryName,
                     Description = dto.Description,
+                    ImageUrl = $"{_config["App:Domain"]}images/logos/{newFileName}",
                     PlaceId = dto.PlaceId,
                     Longitude = dto.Longitude,
                     Latitude = dto.Latitude
@@ -55,7 +72,27 @@ namespace Ubereats.Repositories
             throw new UberEatsException("Restaurant already exists", HttpStatusCode.Conflict);
         }
 
-        private async Task<bool> RestaurantExists(string name) {
+        public async Task<IEnumerable<RestaurantGetDto>> GetAllRestaurantsAsync()
+        {
+            var restaurants = await _context.Restaurants.Include(x => x.RestaurantImages).ToListAsync();
+            if (restaurants != null)
+                return restaurants.Select(x => new RestaurantGetDto
+                {
+                    Id = x.Id,
+                    Address = x.Address,
+                    Name = x.Name,
+                    Description = x.Description,
+                    SecondaryName = x.SecondaryName,
+                    PlaceId = x.PlaceId,
+                    Longitude = x.Longitude,
+                    Latitude = x.Latitude,
+                    RestaurantBannerImage = x.RestaurantImages.Count > 0 ? x.RestaurantImages.FirstOrDefault().ImageUrl : ""
+                }).ToList();
+            throw new UberEatsException("Restaurants not found", HttpStatusCode.NotFound);
+        }
+
+        private async Task<bool> RestaurantExists(string name)
+        {
             return await _context.Restaurants.AnyAsync(x => x.Name == name);
         }
     }

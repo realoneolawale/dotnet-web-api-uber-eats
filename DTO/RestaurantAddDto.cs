@@ -12,6 +12,10 @@ namespace Ubereats.DTO
         public string SecondaryName { get; set; }
         [Required(ErrorMessage = "Restaurant description is required")]
         public string Description { get; set; }
+        [Required(ErrorMessage = "Restaurant logo is required")]
+        public IFormFile ImageUrl { get; set; }
+        [Required(ErrorMessage = "User id is required")]
+        public int UserId { get; set; }
         public string PlaceId { get; set; }
         public long Longitude { get; set; }
         public long Latitude { get; set; }

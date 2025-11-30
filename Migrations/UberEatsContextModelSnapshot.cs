@@ -104,6 +104,9 @@ namespace ubereats.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("longtext");
+
                     b.Property<long>("Latitude")
                         .HasColumnType("bigint");
 
@@ -119,7 +122,12 @@ namespace ubereats.Migrations
                     b.Property<string>("SecondaryName")
                         .HasColumnType("longtext");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Restaurants");
                 });
@@ -228,6 +236,17 @@ namespace ubereats.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Ubereats.Models.Restaurant", b =>
+                {
+                    b.HasOne("Ubereats.Models.User", "User")
+                        .WithMany("Restaurants")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Ubereats.Models.RestaurantFood", b =>
                 {
                     b.HasOne("Ubereats.Models.Restaurant", "Restaurant")
@@ -274,6 +293,8 @@ namespace ubereats.Migrations
             modelBuilder.Entity("Ubereats.Models.User", b =>
                 {
                     b.Navigation("Otp");
+
+                    b.Navigation("Restaurants");
                 });
 #pragma warning restore 612, 618
         }
